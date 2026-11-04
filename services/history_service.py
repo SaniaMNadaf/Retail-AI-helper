@@ -159,9 +159,14 @@ def add_scan_to_history(analysis: ProductAnalysis, category: str = "Packaged Foo
 
     st.session_state.scan_history.insert(0, record)
     
-    # Save to database
+    # Save to database with proper user scoping
     try:
-        save_scan_record(record, analysis)
+        from utils.session import get_current_user_id
+        user_id = get_current_user_id()
+        if user_id:
+            save_scan_record(record, analysis, user_id)
+        else:
+            logger.warning("No user logged in, scan not saved to database")
     except Exception as e:
         logger.warning(f"Failed to save scan to database: {e}")
     

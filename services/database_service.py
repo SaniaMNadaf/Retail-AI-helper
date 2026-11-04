@@ -179,14 +179,15 @@ def save_scan_record(record: ScanRecord, analysis: ProductAnalysis = None, user_
         if user_id:
             user = session.query(User).filter(User.id == user_id).first()
             if not user:
-                user = create_default_user(session)
+                raise ValueError(f"User not found: {user_id}")
         else:
-            user = create_default_user(session)
+            raise ValueError("user_id required for save_scan_record")
         
         db_record = scan_record_to_db(record, user.id, analysis)
         session.add(db_record)
         session.flush()
         logger.info(f"Saved scan record: {record.product_name} for user {user.email}")
+        session.expunge(db_record)
         return db_record
 
 
@@ -196,9 +197,9 @@ def get_scan_history(user_id: str = None, limit: int = 100) -> List[ScanRecord]:
         if user_id:
             user = session.query(User).filter(User.id == user_id).first()
             if not user:
-                user = create_default_user(session)
+                raise ValueError(f"User not found: {user_id}")
         else:
-            user = create_default_user(session)
+            raise ValueError("user_id required for get_scan_history")
         
         db_records = session.query(ScanRecordDB)\
             .filter(ScanRecordDB.user_id == user.id)\
@@ -214,9 +215,9 @@ def get_user_profile(user_id: str = None) -> UserProfile:
         if user_id:
             user = session.query(User).filter(User.id == user_id).first()
             if not user:
-                user = create_default_user(session)
+                raise ValueError(f"User not found: {user_id}")
         else:
-            user = create_default_user(session)
+            raise ValueError("user_id required for get_user_profile")
         return user_to_profile(user)
 
 
@@ -226,12 +227,13 @@ def update_user_profile(profile: UserProfile, user_id: str = None) -> User:
         if user_id:
             user = session.query(User).filter(User.id == user_id).first()
             if not user:
-                user = create_default_user(session)
+                raise ValueError(f"User not found: {user_id}")
         else:
-            user = create_default_user(session)
+            raise ValueError("user_id required for update_user_profile")
         
         profile_to_user(profile, user)
         logger.info(f"Updated profile for user: {user.email}")
+        session.expunge(user)
         return user
 
 
@@ -241,9 +243,9 @@ def get_user_settings(user_id: str = None) -> UserSettings:
         if user_id:
             user = session.query(User).filter(User.id == user_id).first()
             if not user:
-                user = create_default_user(session)
+                raise ValueError(f"User not found: {user_id}")
         else:
-            user = create_default_user(session)
+            raise ValueError("user_id required for get_user_settings")
         
         # Explicitly query settings to avoid lazy loading issues
         settings = session.query(UserSettings).filter(UserSettings.user_id == user.id).first()
@@ -261,9 +263,9 @@ def update_user_settings(settings_data: dict, user_id: str = None) -> UserSettin
         if user_id:
             user = session.query(User).filter(User.id == user_id).first()
             if not user:
-                user = create_default_user(session)
+                raise ValueError(f"User not found: {user_id}")
         else:
-            user = create_default_user(session)
+            raise ValueError("user_id required for update_user_settings")
         
         settings = session.query(UserSettings).filter(UserSettings.user_id == user.id).first()
         if not settings:
