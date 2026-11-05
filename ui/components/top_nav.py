@@ -4,6 +4,7 @@ from utils.session import (
     set_active_nav,
     NAV_SCANNER,
 )
+from utils.validation import esc
 
 def render_top_nav() -> None:
     """Renders the top navigation bar with search, notification popover, avatar, and quick action."""
@@ -34,9 +35,9 @@ def render_top_nav() -> None:
                         icon = "⚠️" if notif["type"] == "warning" else ("✅" if notif["type"] == "success" else "ℹ️")
                         notif_html = (
                             f'<div style="padding: 10px; border-radius: 8px; margin-bottom: 8px; background: #F8FAFC; border: 1px solid #E2E8F0;">'
-                            f'<div style="font-weight: 600; font-size: 0.88rem; color: #0F172A;">{icon} {notif["title"]}</div>'
-                            f'<div style="font-size: 0.8rem; color: #64748B; margin-top: 2px;">{notif["message"]}</div>'
-                            f'<div style="font-size: 0.72rem; color: #94A3B8; margin-top: 4px;">{notif["time"]}</div>'
+                            f'<div style="font-weight: 600; font-size: 0.88rem; color: #0F172A;">{icon} {esc(notif["title"])}</div>'
+                            f'<div style="font-size: 0.8rem; color: #64748B; margin-top: 2px;">{esc(notif["message"])}</div>'
+                            f'<div style="font-size: 0.72rem; color: #94A3B8; margin-top: 4px;">{esc(notif["time"])}</div>'
                             f'</div>'
                         )
                         st.markdown(notif_html, unsafe_allow_html=True)
@@ -56,7 +57,7 @@ def render_top_nav() -> None:
             with avatar_col2:
                 profile_html = (
                     '<div style="line-height: 1.2;">'
-                    f'<div style="font-weight: 700; font-size: 0.88rem; color: #0F172A;">{user_name}</div>'
+                    f'<div style="font-weight: 700; font-size: 0.88rem; color: #0F172A;">{esc(user_name)}</div>'
                     '<div style="font-size: 0.75rem; color: #10B981; font-weight: 600;">● Aura Active</div>'
                     '</div>'
                 )

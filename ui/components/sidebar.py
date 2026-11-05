@@ -10,6 +10,7 @@ from utils.session import (
 )
 from config.settings import APP_TITLE, APP_SUBTITLE
 from ui.components.logo import render_logo
+from utils.validation import esc
 
 def render_sidebar() -> None:
     """Renders the modern left sidebar navigation with branding, active nav items, and profile card."""
@@ -58,11 +59,11 @@ def render_sidebar() -> None:
         widget_html = (
             f'<div class="sidebar-widget" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; padding: 14px; margin-bottom: 20px;">'
             f'<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">'
-            f'<span style="font-weight: 700; font-size: 0.85rem; color: #0F172A;">{user_name} ({age}y)</span>'
+            f'<span style="font-weight: 700; font-size: 0.85rem; color: #0F172A;">{esc(user_name)} ({esc(age)}y)</span>'
             f'<span style="background: #ECFDF5; color: #059669; font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;">ACTIVE</span>'
             f'</div>'
             f'<div style="font-size: 0.78rem; color: #64748B; margin-bottom: 8px;">'
-            f'<strong>Allergies:</strong> {health[:35]}{"..." if len(health) > 35 else ""}'
+            f'<strong>Allergies:</strong> {esc(health[:35])}{"..." if len(health) > 35 else ""}'
             f'</div>'
             f'<div style="background: #E2E8F0; border-radius: 4px; height: 6px; overflow: hidden;">'
             f'<div style="background: #10B981; width: 94%; height: 100%;"></div>'

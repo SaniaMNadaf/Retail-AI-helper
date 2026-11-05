@@ -3,6 +3,7 @@ import pandas as pd
 from typing import Union
 from models.product import ProductAnalysis
 from services.audio_service import generate_voice_bytes
+from utils.validation import esc
 
 def render_results_view(analysis: Union[ProductAnalysis, dict]) -> None:
     """
@@ -58,7 +59,7 @@ def render_results_view(analysis: Union[ProductAnalysis, dict]) -> None:
                     <span style="font-size: 2rem;">{icon}</span>
                     <div>
                         <div style="font-size: 0.78rem; font-weight: 700; color: {verdict_color}; letter-spacing: 0.05em; text-transform: uppercase;">{badge_text}</div>
-                        <div style="font-size: 1.4rem; font-weight: 800; color: #0F172A;">{prod_name}</div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: #0F172A;">{esc(prod_name)}</div>
                     </div>
                 </div>
                 <div style="text-align: right;">
@@ -83,7 +84,7 @@ def render_results_view(analysis: Union[ProductAnalysis, dict]) -> None:
                     🔬 Ingredient Truth Report
                 </div>
                 <div style="font-size: 0.88rem; color: #334155; line-height: 1.6;">
-                    {truth_report}
+                    {esc(truth_report)}
                 </div>
             </div>
             """,
@@ -98,7 +99,7 @@ def render_results_view(analysis: Union[ProductAnalysis, dict]) -> None:
                     🌐 World Health Organization (WHO) Benchmark
                 </div>
                 <div style="font-size: 0.86rem; color: #1E293B; line-height: 1.5;">
-                    {who_verdict}
+                    {esc(who_verdict)}
                 </div>
             </div>
             """,
@@ -135,7 +136,7 @@ def render_results_view(analysis: Union[ProductAnalysis, dict]) -> None:
                     ⚠️ Digital Twin Health Advisory
                 </div>
                 <div style="font-size: 0.86rem; color: #78350F; line-height: 1.5;">
-                    {safety_check}
+                    {esc(safety_check)}
                 </div>
             </div>
             """,
@@ -151,7 +152,7 @@ def render_results_view(analysis: Union[ProductAnalysis, dict]) -> None:
                         🔊 AI Voice Summary
                     </div>
                     <div style="font-size: 0.84rem; color: #475569; font-style: italic; margin-bottom: 12px;">
-                        "{voice_script}"
+                        "{esc(voice_script)}"
                     </div>
                 </div>
                 """,

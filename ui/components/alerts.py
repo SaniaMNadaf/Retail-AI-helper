@@ -1,6 +1,7 @@
 import streamlit as st
 from typing import List
 from models.scan_record import ScanRecord
+from utils.validation import esc
 
 
 def render_safety_alert_banner(records: List[ScanRecord] = None) -> None:
@@ -22,10 +23,10 @@ def render_safety_alert_banner(records: List[ScanRecord] = None) -> None:
     
     if recent_avoid:
         product_names = [r.product_name for r in recent_avoid[:2]]
-        products_str = " and ".join([f'<span style="color: #1D4ED8 !important; font-weight: bold;">{name}</span>' for name in product_names])
+        products_str = " and ".join([f'<span style="color: #1D4ED8 !important; font-weight: bold;">{esc(name)}</span>' for name in product_names])
         message = f"Recently evaluated {products_str} received AVOID verdict. Your digital twin advises against these."
     else:
-        ingredients_str = ", ".join([f'<span style="color: #1D4ED8 !important; font-weight: bold;">{ing}</span>' for ing in unique_flagged])
+        ingredients_str = ", ".join([f'<span style="color: #1D4ED8 !important; font-weight: bold;">{esc(ing)}</span>' for ing in unique_flagged])
         message = f"Recent scans flagged {ingredients_str}. Your digital twin advises caution with these ingredients."
 
     st.markdown(

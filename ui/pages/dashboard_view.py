@@ -2,6 +2,7 @@ import streamlit as st
 from datetime import datetime
 from utils.session import get_user_data, NAV_SCANNER, set_active_nav
 from services.history_service import compute_dashboard_metrics
+from utils.validation import esc
 from ui.components import (
     render_top_nav,
     render_stat_cards,
@@ -28,7 +29,7 @@ def render_dashboard_overview() -> None:
         f'<div class="welcome-banner">'
         f'<div>'
         f'<div style="font-size: 0.85rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">{today_str}</div>'
-        f'<div style="font-size: 1.75rem; font-weight: 800; margin: 4px 0 6px 0;">Welcome back, {user_name}! 👋</div>'
+        f'<div style="font-size: 1.75rem; font-weight: 800; margin: 4px 0 6px 0;">Welcome back, {esc(user_name)}! 👋</div>'
         f'<div style="font-size: 0.92rem; opacity: 0.95; max-width: 600px; line-height: 1.5;">'
         f'Your AI Shopping Bodyguard has monitored <strong>{metrics.get("total_scans", 0)} items</strong> with an average health score of <strong>{metrics.get("avg_safety", "0.0")}/10</strong>.'
         f'</div>'

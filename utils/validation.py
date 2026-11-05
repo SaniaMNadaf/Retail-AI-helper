@@ -1,6 +1,12 @@
 import re
+import html
 import bleach
 from typing import Optional
+
+
+def esc(value) -> str:
+    """Escape text before putting it inside HTML."""
+    return html.escape(str(value if value is not None else ""), quote=True)
 
 
 ALLOWED_TAGS = [

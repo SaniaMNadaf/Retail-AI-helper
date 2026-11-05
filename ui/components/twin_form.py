@@ -2,7 +2,7 @@ import streamlit as st
 from config.settings import DEFAULT_PREFERENCES
 from utils.session import get_user_data, update_user_data
 from models.user import UserProfile
-from utils.validation import sanitize_text, validate_file_upload
+from utils.validation import sanitize_text, validate_file_upload, esc
 
 
 def render_twin_form(
@@ -128,7 +128,7 @@ def render_twin_form(
 def render_twin_preview_card(user: dict) -> None:
     """Renders the preview card showing current digital twin state."""
     active_interests_tags = "".join(
-        f'<span style="background: #EEF2FF; color: #4F46E5; font-size: 0.78rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; margin-right: 6px; display: inline-block; margin-bottom: 6px;">#{tag}</span>'
+        f'<span style="background: #EEF2FF; color: #4F46E5; font-size: 0.78rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; margin-right: 6px; display: inline-block; margin-bottom: 6px;">#{esc(tag)}</span>'
         for tag in user.get("interests", ["Fitness", "Organic"])
     )
 
@@ -137,7 +137,7 @@ def render_twin_preview_card(user: dict) -> None:
         f'<div style="display: flex; align-items: center; gap: 14px; margin-bottom: 18px;">'
         f'<div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #4F46E5, #06B6D4); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">🧬</div>'
         f'<div>'
-        f'<div class="twin-title" style="font-size: 1.2rem; font-weight: 800; color: #0F172A;">{user.get("name", "Aarav Sharma")}</div>'
+        f'<div class="twin-title" style="font-size: 1.2rem; font-weight: 800; color: #0F172A;">{esc(user.get("name", "Aarav Sharma"))}</div>'
         f'<div style="font-size: 0.82rem; color: #10B981; font-weight: 600;">● Active Aura Protection</div>'
         f'</div>'
         f'</div>'
@@ -148,12 +148,12 @@ def render_twin_preview_card(user: dict) -> None:
         f'</div>'
         f'<div class="twin-box" style="background: #F8FAFC; padding: 10px 14px; border-radius: 10px; border: 1px solid #E2E8F0;">'
         f'<div style="font-size: 0.72rem; color: #64748B; font-weight: 600;">BIOMETRICS</div>'
-        f'<div class="twin-val" style="font-size: 1.1rem; font-weight: 800; color: #0F172A;">{user.get("height", "178cm")} / {user.get("weight", "72kg")}</div>'
+        f'<div class="twin-val" style="font-size: 1.1rem; font-weight: 800; color: #0F172A;">{esc(user.get("height", "178cm"))} / {esc(user.get("weight", "72kg"))}</div>'
         f'</div>'
         f'</div>'
         f'<div style="margin-bottom: 14px;">'
         f'<div style="font-size: 0.8rem; font-weight: 700; color: #92400E; margin-bottom: 4px;">⚠️ Active Allergen Interceptors</div>'
-        f'<div class="twin-alert" style="font-size: 0.85rem; color: #78350F; background: #FFFBEB; border: 1px solid #FDE68A; padding: 8px 12px; border-radius: 8px;">{user.get("health", "None")}</div>'
+        f'<div class="twin-alert" style="font-size: 0.85rem; color: #78350F; background: #FFFBEB; border: 1px solid #FDE68A; padding: 8px 12px; border-radius: 8px;">{esc(user.get("health", "None"))}</div>'
         f'</div>'
         f'<div>'
         f'<div style="font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 6px;">Shopping Philosophy</div>'
