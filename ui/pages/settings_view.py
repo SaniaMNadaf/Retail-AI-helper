@@ -61,6 +61,7 @@ def render_settings_view() -> None:
                 <div style="font-weight: 700; font-size: 1rem; color: #0F172A; margin-bottom: 12px;">
                     🛒 E-Commerce & Currency
                 </div>
+                <div style="font-size: 0.8rem; color: #64748B; margin-bottom: 8px;">Currency and notification preferences are saved and will be used in future updates.</div>
             """,
             unsafe_allow_html=True,
         )

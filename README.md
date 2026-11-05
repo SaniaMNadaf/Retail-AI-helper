@@ -7,7 +7,7 @@ A Streamlit-based AI application that scans product labels and evaluates them ag
 - **AI Product Scanner** - Upload or capture product label images for instant analysis
 - **Digital Twin Health Profile** - Personalized allergen & dietary restriction monitoring
 - **WHO Guideline Compliance** - Cross-references ingredients against World Health Organization standards
-- **Live Price Comparison** - Compares prices across Indian e-commerce platforms (Blinkit, Amazon, Zepto, Instamart)
+- **Estimated Price Comparison** - AI-estimated prices across Indian e-commerce platforms (Blinkit, Amazon, Zepto, Instamart); may differ from store prices
 - **Voice Verdicts** - AI-generated audio summaries of product safety
 - **Scan History & Analytics** - Dashboard with metrics, charts, and exportable audit reports
 - **User Authentication** - Secure email/password registration and login
@@ -89,7 +89,6 @@ AuraSathi/
 3. **Scan Products** - Use camera or upload product label images
 4. **View Results** - See AI verdict (BUY/THINK/AVOID), safety score, WHO compliance, prices
 5. **Track History** - Dashboard shows metrics, trends, and full scan history
-6. **Export Audit** - Download comprehensive CSV health audit report
 
 ## API Integration
 
@@ -133,14 +132,7 @@ python -m pytest tests/ --cov=services --cov=models --cov=utils
 - **Auth**: bcrypt password hashing
 - **Testing**: pytest + pytest-mock
 
-## Security
-
-- Passwords hashed with bcrypt
-- Input sanitization with bleach (XSS prevention)
-- Email format validation
-- Password strength requirements
-- File upload validation (type & size)
-- SQL injection prevention via SQLAlchemy ORM
+- **Security**: HTML escaping of user/AI content, bcrypt password hashing, input validation, email case normalization
 
 ## License
 

@@ -15,6 +15,7 @@ def create_user(email: str, password: str, name: str = None) -> Tuple[bool, str,
     Create a new user account.
     Returns (success, message, user_object).
     """
+    email = email.strip().lower()
     # Validate email
     if not validate_email(email):
         return False, "Invalid email format", None
@@ -46,6 +47,8 @@ def create_user(email: str, password: str, name: str = None) -> Tuple[bool, str,
             user_id=user.id,
         )
         session.add(settings)
+        session.flush()
+        session.expunge(user)
         
         logger.info(f"Created new user: {email}")
         return True, "Account created successfully", user
@@ -56,6 +59,7 @@ def authenticate_user(email: str, password: str) -> Tuple[bool, str, Optional[Us
     Authenticate user with email and password.
     Returns (success, message, user_object).
     """
+    email = email.strip().lower()
     with get_db_session() as session:
         user = session.query(User).filter(User.email == email).first()
         if not user:
@@ -72,14 +76,20 @@ def authenticate_user(email: str, password: str) -> Tuple[bool, str, Optional[Us
         
         # Update last login
         user.last_login = datetime.utcnow()
+        session.flush()
+        session.expunge(user)
         logger.info(f"User logged in: {email}")
         return True, "Login successful", user
 
 
 def get_user_by_email(email: str) -> Optional[User]:
     """Get user by email."""
+    email = email.strip().lower()
     with get_db_session() as session:
-        return session.query(User).filter(User.email == email).first()
+        user = session.query(User).filter(User.email == email).first()
+        if user:
+            session.expunge(user)
+        return user
 
 
 def get_user_by_id(user_id: str) -> Optional[User]:
@@ -118,10 +128,13 @@ def deactivate_user(user_id: str) -> Tuple[bool, str]:
 
 def create_oauth_user(email: str, name: str = None) -> Tuple[bool, str, User]:
     """Create or get OAuth user (no password)."""
+    email = email.strip().lower()
     with get_db_session() as session:
         user = session.query(User).filter(User.email == email).first()
         if user:
             user.last_login = datetime.utcnow()
+            session.flush()
+            session.expunge(user)
             return True, "Welcome back!", user
         
         user = User(
@@ -138,6 +151,8 @@ def create_oauth_user(email: str, name: str = None) -> Tuple[bool, str, User]:
             user_id=user.id,
         )
         session.add(settings)
+        session.flush()
+        session.expunge(user)
         
         logger.info(f"Created OAuth user: {email}")
         return True, "Account created via OAuth", user

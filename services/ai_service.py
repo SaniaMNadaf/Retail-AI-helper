@@ -21,6 +21,7 @@ def analyze_product_image(
     mime_type: str = "image/jpeg",
     user_data: Optional[Dict[str, Any]] = None,
     model_name: str = DEFAULT_GEMINI_MODEL,
+    priority_platforms: Optional[list[str]] = None,
 ) -> ProductAnalysis:
     """
     Analyzes a product label/image using Gemini multimodal model
@@ -34,6 +35,7 @@ def analyze_product_image(
     interests = user_data.get("interests", [])
     interests_str = ", ".join(interests) if isinstance(interests, list) else str(interests)
 
+    platforms_str = ", ".join(priority_platforms) if priority_platforms else "Amazon India, Blinkit, Instamart, Zepto"
     prompt = f"""
     You are Aura Sathi, a strict personal AI shopping bodyguard and safety evaluator.
     Analyze this scanned product label/image carefully against the user's profile:
@@ -45,7 +47,7 @@ def analyze_product_image(
     1. Identify the exact product name and brand.
     2. Provide a truth report on ingredients, nutritional profile, and marketing claims.
     3. Cross-reference with World Health Organization (WHO) dietary benchmarks and guidelines.
-    4. Provide realistic online price comparisons in India (e.g. Amazon, Blinkit, Instamart, Zepto in ₹).
+    4. Provide realistic online price comparisons in India from these platforms: {platforms_str} (in ₹).
     5. Highlight any safety risks or allergy warnings tailored to the user.
     6. Deliver a punchy one-sentence voice verdict.
     7. Final verdict: 'BUY' (safe & recommended), 'THINK' (consume in moderation / minor caution), or 'AVOID' (unhealthy / allergen risk).

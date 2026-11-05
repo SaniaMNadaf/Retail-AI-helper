@@ -111,7 +111,7 @@ def render_results_view(analysis: Union[ProductAnalysis, dict]) -> None:
             st.markdown(
                 """
                 <div style="font-weight: 700; font-size: 0.95rem; color: #0F172A; margin-top: 14px; margin-bottom: 8px;">
-                    🛒 Live Price Comparison across Platforms
+                    🛒 Estimated Prices (AI estimate, may differ from store)
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -160,4 +160,15 @@ def render_results_view(analysis: Union[ProductAnalysis, dict]) -> None:
             )
             audio_bytes = generate_voice_bytes(voice_script)
             if audio_bytes:
-                st.audio(audio_bytes, format="audio/mp3", autoplay=True)
+                # Respect user's autoplay preference from settings
+                autoplay = True
+                try:
+                    from utils.session import get_current_user_id
+                    from services.database_service import get_user_settings
+                    uid = get_current_user_id()
+                    if uid:
+                        settings = get_user_settings(uid)
+                        autoplay = bool(getattr(settings, "auto_play_voice", True))
+                except Exception:
+                    autoplay = True
+                st.audio(audio_bytes, format="audio/mp3", autoplay=autoplay)

@@ -2,7 +2,8 @@ import streamlit as st
 from ui.components import render_top_nav, render_results_view
 from services.ai_service import analyze_product_image
 from services.history_service import add_scan_to_history
-from utils.session import get_user_data
+from services.database_service import get_user_settings
+from utils.session import get_user_data, get_current_user_id
 from config.settings import APP_TITLE
 from utils.validation import validate_file_upload
 
@@ -57,12 +58,21 @@ def render_scanner_view() -> None:
                     img_bytes = img_file.getvalue()
                     mime_type = getattr(img_file, "type", "image/jpeg") or "image/jpeg"
                     user_data = get_user_data()
+                    user_id = get_current_user_id()
+                    settings = get_user_settings(user_id) if user_id else None
+                    priority_platforms = getattr(settings, "priority_platforms", None) if settings else None
 
                     analysis = analyze_product_image(
                         image_bytes=img_bytes,
                         mime_type=mime_type,
                         user_data=user_data,
+                        priority_platforms=priority_platforms,
                     )
+
+                    # Apply score threshold setting
+                    threshold = getattr(settings, "safe_score_threshold", 1) if settings else 1
+                    if analysis.verdict == "BUY" and analysis.safety_score < threshold:
+                        analysis.verdict = "THINK"
 
                     # Automatically register into history
                     add_scan_to_history(analysis)
