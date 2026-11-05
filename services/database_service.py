@@ -22,11 +22,11 @@ engine = create_engine(
     poolclass=StaticPool if "sqlite" in DATABASE_URL else None,
 )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, expire_on_commit=False)
-
-
 def make_session_factory(bind):
     return sessionmaker(autocommit=False, autoflush=False, bind=bind, expire_on_commit=False)
+
+
+SessionLocal = make_session_factory(engine)
 
 
 def init_db():
