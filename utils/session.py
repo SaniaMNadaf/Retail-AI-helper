@@ -77,6 +77,11 @@ def get_user_id() -> Optional[str]:
     return st.session_state.get("user_id")
 
 
+def get_current_user_id() -> Optional[str]:
+    """Alias used by settings and history code."""
+    return st.session_state.get("user_id")
+
+
 def update_user_data(new_data: Dict[str, Any]) -> None:
     """Updates user profile data in session state and database."""
     if "user_data" not in st.session_state:

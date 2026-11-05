@@ -9,8 +9,12 @@ def render_settings_view() -> None:
     """Renders the settings and system configuration view."""
     render_top_nav()
 
-    # Load settings from database
     user_id = get_current_user_id()
+    if not user_id:
+        st.warning("Please log in to view settings.")
+        return
+    
+    # Load settings from database
     settings = get_user_settings(user_id)
     
     st.markdown(

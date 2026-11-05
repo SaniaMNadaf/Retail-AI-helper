@@ -36,10 +36,13 @@ st.set_page_config(page_title=APP_TITLE, page_icon=APP_ICON, layout="wide")
 # 3. Initialize Session State
 init_session_state()
 
-# 4. Load user theme setting and Inject CSS Theme
+# 4. Load user theme setting and inject CSS theme
 from services.database_service import get_user_settings
-user_settings = get_user_settings(st.session_state.get("user_id"))
-is_dark = (getattr(user_settings, "theme", "Light Mode") == "Dark Mode")
+user_id = st.session_state.get("user_id")
+is_dark = False
+if user_id:
+    user_settings = get_user_settings(user_id)
+    is_dark = (getattr(user_settings, "theme", "Light Mode") == "Dark Mode")
 apply_custom_styles(is_dark=is_dark)
 
 # 5. Declarative Page Routing with Enum validation
