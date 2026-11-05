@@ -30,9 +30,6 @@ except Exception as e:
     st.error(f"❌ Configuration Error: {str(e)}")
     st.stop()
 
-# 2. Page Configuration
-st.set_page_config(page_title=APP_TITLE, page_icon=APP_ICON, layout="wide")
-
 # 3. Initialize Session State
 init_session_state()
 

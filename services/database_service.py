@@ -209,6 +209,23 @@ def get_scan_history(user_id: str = None, limit: int = 100) -> List[ScanRecord]:
         return [db_to_scan_record(r) for r in db_records]
 
 
+def delete_scan_history(user_id: str) -> int:
+    """Delete all saved scan records belonging to a user and return the count."""
+    if not user_id:
+        raise ValueError("user_id required for delete_scan_history")
+
+    with get_db_session() as session:
+        user = session.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise ValueError(f"User not found: {user_id}")
+
+        deleted_count = session.query(ScanRecordDB)\
+            .filter(ScanRecordDB.user_id == user_id)\
+            .delete(synchronize_session=False)
+        logger.info(f"Deleted {deleted_count} scan records for user {user.email}")
+        return deleted_count
+
+
 def get_user_profile(user_id: str = None) -> UserProfile:
     """Get user profile from database."""
     with get_db_session() as session:

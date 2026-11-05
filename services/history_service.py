@@ -124,7 +124,7 @@ INITIAL_RECORDS: List[Dict[str, Any]] = [
 ]
 
 def get_initial_records() -> List[ScanRecord]:
-    """Returns initial pre-loaded scan records for instant dashboard activity."""
+    """Returns sample records for tests and explicit demos; never used as user history."""
     return [ScanRecord(**item) for item in INITIAL_RECORDS]
 
 def add_scan_to_history(analysis: ProductAnalysis, category: str = "Packaged Food") -> ScanRecord:
@@ -155,7 +155,7 @@ def add_scan_to_history(analysis: ProductAnalysis, category: str = "Packaged Foo
     )
 
     if "scan_history" not in st.session_state:
-        st.session_state.scan_history = get_initial_records()
+        st.session_state.scan_history = []
 
     st.session_state.scan_history.insert(0, record)
     

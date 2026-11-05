@@ -1,8 +1,11 @@
 import streamlit as st
 from ui.components import render_top_nav
 from config.settings import DEFAULT_GEMINI_MODEL, API_KEY
-from services.history_service import get_initial_records
-from services.database_service import get_user_settings, update_user_settings
+from services.database_service import (
+    delete_scan_history,
+    get_user_settings,
+    update_user_settings,
+)
 from utils.session import get_current_user_id
 
 def render_settings_view() -> None:
@@ -114,11 +117,13 @@ def render_settings_view() -> None:
             """,
             unsafe_allow_html=True,
         )
-        st.caption("Reset your session history or restore default test scans.")
-        if st.button("Reset Scan History to Sample Data"):
-            st.session_state.scan_history = get_initial_records()
+        st.caption("Permanently delete all scan records saved to your account.")
+        confirm_delete = st.checkbox("I understand this will permanently delete my scan history")
+        if st.button("Delete Scan History", disabled=not confirm_delete):
+            delete_scan_history(user_id)
+            st.session_state.scan_history = []
             st.session_state.last_analysis = None
-            st.toast("✅ Scan history reset to sample records.", icon="🔄")
+            st.toast("✅ Your scan history was deleted.", icon="🗑️")
             st.rerun()
 
         st.markdown("</div>", unsafe_allow_html=True)

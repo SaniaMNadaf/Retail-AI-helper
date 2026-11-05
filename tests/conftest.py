@@ -25,7 +25,7 @@ def mock_streamlit(monkeypatch):
             self[key] = value
         
         def get(self, key, default=None):
-            return self.get(key, default)
+            return super().get(key, default)
     
     monkeypatch.setattr(st, "session_state", MockSessionState(mock_session_state))
     monkeypatch.setattr(st, "cache_data", lambda *args, **kwargs: lambda f: f)

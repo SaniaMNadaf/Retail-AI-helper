@@ -18,11 +18,11 @@ from services.history_service import (
     INITIAL_RECORDS
 )
 from services.audio_service import generate_voice_bytes
+from services.database_service import delete_scan_history
 from models.product import ProductAnalysis, PriceItem
 from models.scan_record import ScanRecord
 
 
-class TestHistoryService:
 class TestAuthService:
     def test_user_id_is_available_after_create_and_authenticate(self, monkeypatch):
         engine = create_engine(
@@ -72,6 +72,30 @@ class TestAuthService:
             engine.dispose()
 
 
+class TestHistoryService:
+    def test_init_session_reloads_history_for_existing_login(self, mock_streamlit):
+        from utils.session import init_session_state
+
+        mock_streamlit.session_state["user_id"] = "user-123"
+        mock_streamlit.session_state["scan_history"] = get_initial_records()
+
+        with patch("utils.session.init_db"):
+            with patch("utils.session.get_scan_history", return_value=[]):
+                init_session_state()
+
+        assert mock_streamlit.session_state.scan_history == []
+        assert mock_streamlit.session_state.history_user_id == "user-123"
+
+    def test_load_user_session_starts_with_empty_history(self, mock_streamlit):
+        from models.user import UserProfile
+        from utils.session import load_user_session
+
+        with patch("utils.session.get_user_profile", return_value=UserProfile()):
+            with patch("utils.session.get_scan_history", return_value=[]):
+                load_user_session("user-123")
+
+        assert mock_streamlit.session_state.scan_history == []
+
     def test_get_initial_records(self):
         records = get_initial_records()
         assert len(records) == 10
@@ -115,11 +139,46 @@ class TestAuthService:
         
         mock_state = MagicMock()
         mock_state.scan_history = []
+        mock_state.get.return_value = None
         with patch("streamlit.session_state", mock_state):
             record = add_scan_to_history(analysis)
             assert record.product_name == "Test Product"
             assert record.verdict == "BUY"
             assert record.safety_score == 9
+
+    def test_add_scan_to_history_does_not_seed_sample_records(self):
+        analysis = ProductAnalysis(
+            product_name="Only Real Scan",
+            truth_report="Test",
+            who_verdict="WHO test",
+            online_prices=[],
+            safety_check="Safe",
+            voice_script="Buy it",
+            verdict="BUY",
+            safety_score=9,
+        )
+
+        mock_state = MagicMock()
+        mock_state.__contains__.return_value = False
+        mock_state.get.return_value = None
+        with patch("streamlit.session_state", mock_state):
+            record = add_scan_to_history(analysis)
+
+        assert mock_state.scan_history == [record]
+
+    def test_delete_scan_history_is_scoped_to_user(self):
+        mock_session = MagicMock()
+        mock_session.__enter__.return_value = mock_session
+        mock_user = MagicMock()
+        mock_user.email = "user@example.com"
+        mock_session.query.return_value.filter.return_value.first.return_value = mock_user
+        mock_session.query.return_value.filter.return_value.delete.return_value = 2
+
+        with patch("services.database_service.get_db_session", return_value=mock_session):
+            deleted = delete_scan_history("user-123")
+
+        assert deleted == 2
+        assert mock_session.query.call_count == 2
 
 
 class TestAudioService:

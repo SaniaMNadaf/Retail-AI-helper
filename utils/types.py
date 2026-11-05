@@ -49,6 +49,7 @@ class SessionStateDict(TypedDict):
     
     # Scan history
     scan_history: List[ScanRecord]
+    history_user_id: Optional[str]
     last_analysis: Optional[ProductAnalysis]
     
     # Navigation
@@ -66,6 +67,7 @@ DEFAULT_SESSION_STATE: Dict[str, Any] = {
     "user_id": None,
     "user_data": {},
     "scan_history": [],
+    "history_user_id": None,
     "last_analysis": None,
     "active_nav": "Dashboard",
     "search_query": "",

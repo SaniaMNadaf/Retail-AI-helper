@@ -1,7 +1,6 @@
 from typing import Any, Dict, List, Optional
 import streamlit as st
 from config.settings import PAGE_LOGO, PAGE_HOME
-from services.history_service import get_initial_records
 from services.database_service import (
     get_user_profile,
     get_scan_history,
@@ -35,10 +34,15 @@ def init_session_state() -> None:
     for key, default_value in DEFAULT_SESSION_STATE.items():
         if key not in st.session_state:
             st.session_state[key] = default_value
-            
-    # Ensure scan_history is populated with initial records if empty
-    if not st.session_state.get("scan_history"):
-        st.session_state.scan_history = get_initial_records()
+
+    user_id = st.session_state.get("user_id")
+    if user_id:
+        if st.session_state.get("history_user_id") != user_id:
+            st.session_state.scan_history = get_scan_history(user_id, limit=50)
+            st.session_state.history_user_id = user_id
+    else:
+        st.session_state.scan_history = []
+        st.session_state.history_user_id = None
 
 
 def load_user_session(user_id: str) -> None:
@@ -48,10 +52,8 @@ def load_user_session(user_id: str) -> None:
     st.session_state.user_id = user_id
     
     db_records = get_scan_history(user_id, limit=50)
-    if not db_records:
-        st.session_state.scan_history = get_initial_records()
-    else:
-        st.session_state.scan_history = db_records
+    st.session_state.scan_history = db_records
+    st.session_state.history_user_id = user_id
 
 
 def set_active_nav(nav_item: str) -> None:
@@ -104,7 +106,7 @@ def login_user(user_id: str) -> None:
 def logout() -> None:
     """Clears user session state and returns to landing page."""
     # Reset all user-related session state
-    for key in ["user_id", "user_data", "last_analysis", "scan_history"]:
+    for key in ["user_id", "user_data", "last_analysis", "scan_history", "history_user_id"]:
         if key in st.session_state:
             del st.session_state[key]
     
