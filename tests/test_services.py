@@ -1,10 +1,16 @@
 import sys
 from pathlib import Path
+from contextlib import contextmanager
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pytest
 from unittest.mock import Mock, patch, MagicMock
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+from models.database import Base
+from services.auth_service import create_user, authenticate_user
 from services.history_service import (
     get_initial_records,
     add_scan_to_history,
@@ -17,6 +23,55 @@ from models.scan_record import ScanRecord
 
 
 class TestHistoryService:
+class TestAuthService:
+    def test_user_id_is_available_after_create_and_authenticate(self, monkeypatch):
+        engine = create_engine(
+            "sqlite:///:memory:",
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+        )
+        Base.metadata.create_all(bind=engine)
+        test_session_factory = sessionmaker(
+            bind=engine,
+            autocommit=False,
+            autoflush=False,
+            expire_on_commit=False,
+        )
+
+        @contextmanager
+        def get_test_db_session():
+            session = test_session_factory()
+            try:
+                yield session
+                session.commit()
+            except Exception:
+                session.rollback()
+                raise
+            finally:
+                session.close()
+
+        monkeypatch.setattr("services.auth_service.get_db_session", get_test_db_session)
+
+        try:
+            created, _, created_user = create_user(
+                "login.regression@example.com",
+                "SecurePass123!",
+            )
+            assert created
+            assert created_user is not None
+            created_user_id = created_user.id
+
+            authenticated, _, authenticated_user = authenticate_user(
+                "login.regression@example.com",
+                "SecurePass123!",
+            )
+            assert authenticated
+            assert authenticated_user is not None
+            assert authenticated_user.id == created_user_id
+        finally:
+            engine.dispose()
+
+
     def test_get_initial_records(self):
         records = get_initial_records()
         assert len(records) == 10
