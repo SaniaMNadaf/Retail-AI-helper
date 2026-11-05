@@ -31,12 +31,8 @@ class TestAuthService:
             poolclass=StaticPool,
         )
         Base.metadata.create_all(bind=engine)
-        test_session_factory = sessionmaker(
-            bind=engine,
-            autocommit=False,
-            autoflush=False,
-            expire_on_commit=False,
-        )
+        from services.database_service import make_session_factory
+        test_session_factory = make_session_factory(engine)
 
         @contextmanager
         def get_test_db_session():

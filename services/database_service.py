@@ -25,6 +25,10 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, expire_on_commit=False)
 
 
+def make_session_factory(bind):
+    return sessionmaker(autocommit=False, autoflush=False, bind=bind, expire_on_commit=False)
+
+
 def init_db():
     """Initialize database tables and run lightweight migrations for missing columns."""
     Base.metadata.create_all(bind=engine)
