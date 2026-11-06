@@ -18,6 +18,7 @@ from services.history_service import (
     INITIAL_RECORDS
 )
 from services.audio_service import generate_voice_bytes
+from services.ai_service import apply_score_threshold
 from services.database_service import delete_scan_history
 from models.product import ProductAnalysis, PriceItem
 from models.scan_record import ScanRecord
@@ -67,8 +68,121 @@ class TestAuthService:
         finally:
             engine.dispose()
 
+    def test_email_normalization_register_and_login(self, monkeypatch):
+        engine = create_engine(
+            "sqlite:///:memory:",
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+        )
+        Base.metadata.create_all(bind=engine)
+        from services.database_service import make_session_factory
+        test_session_factory = make_session_factory(engine)
+
+        @contextmanager
+        def get_test_db_session():
+            session = test_session_factory()
+            try:
+                yield session
+                session.commit()
+            except Exception:
+                session.rollback()
+                raise
+            finally:
+                session.close()
+
+        monkeypatch.setattr("services.auth_service.get_db_session", get_test_db_session)
+
+        try:
+            created, msg, user = create_user("A@x.com", "SecurePass123!")
+            assert created
+            assert user is not None
+            assert user.email == "a@x.com"
+
+            ok, msg, authed = authenticate_user("a@x.com", "SecurePass123!")
+            assert ok
+            assert authed is not None
+            assert authed.email == "a@x.com"
+        finally:
+            engine.dispose()
+
+    def test_email_normalization_duplicate(self, monkeypatch):
+        engine = create_engine(
+            "sqlite:///:memory:",
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+        )
+        Base.metadata.create_all(bind=engine)
+        from services.database_service import make_session_factory
+        test_session_factory = make_session_factory(engine)
+
+        @contextmanager
+        def get_test_db_session():
+            session = test_session_factory()
+            try:
+                yield session
+                session.commit()
+            except Exception:
+                session.rollback()
+                raise
+            finally:
+                session.close()
+
+        monkeypatch.setattr("services.auth_service.get_db_session", get_test_db_session)
+
+        try:
+            created, _, _ = create_user("A@x.com", "SecurePass123!")
+            assert created
+
+            created2, msg2, _ = create_user("a@x.com", "SecurePass123!")
+            assert not created2
+            assert "Email already registered" in msg2
+        finally:
+            engine.dispose()
+
 
 class TestHistoryService:
+    def test_apply_score_threshold_buy_below(self):
+        analysis = ProductAnalysis(
+            product_name="Test",
+            truth_report="Test",
+            who_verdict="OK",
+            online_prices=[],
+            safety_check="OK",
+            voice_script="OK",
+            verdict="BUY",
+            safety_score=4,
+        )
+        result = apply_score_threshold(analysis, threshold=5)
+        assert result.verdict == "THINK"
+
+    def test_apply_score_threshold_buy_above(self):
+        analysis = ProductAnalysis(
+            product_name="Test",
+            truth_report="Test",
+            who_verdict="OK",
+            online_prices=[],
+            safety_check="OK",
+            voice_script="OK",
+            verdict="BUY",
+            safety_score=8,
+        )
+        result = apply_score_threshold(analysis, threshold=5)
+        assert result.verdict == "BUY"
+
+    def test_apply_score_threshold_avoid_unchanged(self):
+        analysis = ProductAnalysis(
+            product_name="Test",
+            truth_report="Test",
+            who_verdict="OK",
+            online_prices=[],
+            safety_check="OK",
+            voice_script="OK",
+            verdict="AVOID",
+            safety_score=2,
+        )
+        result = apply_score_threshold(analysis, threshold=5)
+        assert result.verdict == "AVOID"
+
     def test_init_session_reloads_history_for_existing_login(self, mock_streamlit):
         from utils.session import init_session_state
 

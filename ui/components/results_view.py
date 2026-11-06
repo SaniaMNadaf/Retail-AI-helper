@@ -172,3 +172,4 @@ def render_results_view(analysis: Union[ProductAnalysis, dict]) -> None:
                 except Exception:
                     autoplay = True
                 st.audio(audio_bytes, format="audio/mp3", autoplay=autoplay)
+        st.caption("⚠️ This is not medical advice. Consult a qualified healthcare professional for health decisions.")

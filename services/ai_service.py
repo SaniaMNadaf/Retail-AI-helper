@@ -10,7 +10,11 @@ from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-def _get_client() -> genai.Client:
+def apply_score_threshold(analysis: ProductAnalysis, threshold: int) -> ProductAnalysis:
+    """Apply user's safe score threshold: downgrade BUY to THINK if below threshold."""
+    if analysis.verdict == "BUY" and analysis.safety_score < threshold:
+        analysis.verdict = "THINK"
+    return analysis
     """Get authenticated Google GenAI client."""
     if not API_KEY:
         raise ValueError("GOOGLE_API_KEY is not configured in environment or .env file.")

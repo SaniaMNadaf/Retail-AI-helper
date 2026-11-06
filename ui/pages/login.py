@@ -48,14 +48,8 @@ def render_login_page() -> None:
 
         c_btn1, c_btn2 = st.columns([1, 1])
         with c_btn1:
-            if st.button("🧬 Setup Digital Twin (Demo)", use_container_width=True):
-                # Demo login without password
-                from services.auth_service import create_oauth_user
-                success, msg, user = create_oauth_user("demo@aurasathi.ai", "Demo User")
-                if success:
-                    login_user(user.id)
-                    st.toast(f"✅ {msg}", icon="🧬")
-                    st.rerun()
+            if st.button("🧬 Setup Digital Twin", use_container_width=True):
+                navigate_to(PAGE_CLONING)
 
         with c_btn2:
             if st.button("🌐 Continue with Google", use_container_width=True):

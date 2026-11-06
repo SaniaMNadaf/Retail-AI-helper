@@ -1,6 +1,6 @@
 import streamlit as st
 from ui.components import render_top_nav, render_results_view
-from services.ai_service import analyze_product_image
+from services.ai_service import analyze_product_image, apply_score_threshold
 from services.history_service import add_scan_to_history
 from services.database_service import get_user_settings
 from utils.session import get_user_data, get_current_user_id
@@ -71,8 +71,7 @@ def render_scanner_view() -> None:
 
                     # Apply score threshold setting
                     threshold = getattr(settings, "safe_score_threshold", 1) if settings else 1
-                    if analysis.verdict == "BUY" and analysis.safety_score < threshold:
-                        analysis.verdict = "THINK"
+                    analysis = apply_score_threshold(analysis, threshold)
 
                     # Automatically register into history
                     add_scan_to_history(analysis)
